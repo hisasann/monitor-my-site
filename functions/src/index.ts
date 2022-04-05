@@ -1,9 +1,11 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import * as https from "https";
+import {WebClient} from "@slack/web-api";
 
 admin.initializeApp();
 
+// HTTP STATUS
 const PERMANENT_REDIRECT = 308;
 const OK = 200;
 
@@ -48,16 +50,37 @@ exports.makeUppercase = functions.firestore
       return snap.ref.set({uppercase}, {merge: true});
     });
 
+// Slack に通知する
+const token = functions.config().slack.token;
+const web = new WebClient(token);
+const conversationId = "C03A06PMU0M";
+
 exports.scheduledFunction = functions.region("asia-northeast1")
     .pubsub.schedule("every 24 hours")
     .timeZone("Asia/Tokyo")
     .onRun(() => {
-      return Promise.all([
+      Promise.all([
         checkRequire("https://hisasann.dev/"),
         checkRequire("https://dialy.hisasann.dev/"),
         checkRequire("https://blog.hisasann.dev/"),
         checkRequire("https://essay.hisasann.dev/"),
         checkRequire("https://hisasann.github.io/"),
         checkRequire("https://cup-ramen-counter.com/"),
-      ]);
+      ]).then(() => {
+        (async () => {
+          const res = await web.chat.postMessage({
+            channel: conversationId, text: "大丈夫でした。",
+          });
+          console.log("Message sent: ", res.ts);
+        })();
+      }).catch(() => {
+        (async () => {
+          const res = await web.chat.postMessage({
+            channel: conversationId, text: "ダメでした。",
+          });
+          console.log("Message sent: ", res.ts);
+        })();
+      });
+
+      return null;
     });
