@@ -55,7 +55,8 @@ const token = functions.config().slack.token;
 const web = new WebClient(token);
 const conversationId = "C03A06PMU0M";
 
-exports.scheduledFunction = functions.region("asia-northeast1")
+exports.scheduledFunction = functions
+    .region("asia-northeast1")
     .pubsub.schedule("every 24 hours")
     .timeZone("Asia/Tokyo")
     .onRun(() => {
@@ -66,21 +67,25 @@ exports.scheduledFunction = functions.region("asia-northeast1")
         checkRequire("https://essay.hisasann.dev/"),
         checkRequire("https://hisasann.github.io/"),
         checkRequire("https://cup-ramen-counter.com/"),
-      ]).then(() => {
-        (async () => {
-          const res = await web.chat.postMessage({
-            channel: conversationId, text: "大丈夫でした。",
+      ])
+          .then(() => {
+            (async () => {
+              const res = await web.chat.postMessage({
+                channel: conversationId,
+                text: "大丈夫でした。",
+              });
+              console.log("Message sent: ", res.ts);
+            })();
+          })
+          .catch(() => {
+            (async () => {
+              const res = await web.chat.postMessage({
+                channel: conversationId,
+                text: "ダメでした。",
+              });
+              console.log("Message sent: ", res.ts);
+            })();
           });
-          console.log("Message sent: ", res.ts);
-        })();
-      }).catch(() => {
-        (async () => {
-          const res = await web.chat.postMessage({
-            channel: conversationId, text: "ダメでした。",
-          });
-          console.log("Message sent: ", res.ts);
-        })();
-      });
 
       return null;
     });
