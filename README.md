@@ -4,7 +4,7 @@
 
 最終的に結果を Slack 通知するようにしています。
 
-`http://hisasann.dev/` が `http://www.hisasann.dev/` にリダイレクトさせるようになってるようで、 **308** が返ってきた。
+`https://hisasann.dev/` が `https://www.hisasann.dev/` にリダイレクトさせるようになってるようで、 **308** が返ってきた。
 
 ので、それも考慮した。
 
